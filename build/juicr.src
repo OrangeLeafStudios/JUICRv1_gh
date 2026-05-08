@@ -1,9 +1,9 @@
-import_code("/bin/GOBAq/styleStrip.src")
-import_code("/bin/GOBAq/crackTools.src")
-import_code("/bin/GOBAq/jsonUtils.src")
-import_code("/bin/GOBAq/fileUtils.src")
-import_code("/bin/GOBAq/reqSearch.src")
-import_code("/bin/GOBAq/terminalInterface.src")
+import_code("/bin/ZyAGF/styleStrip.src")
+import_code("/bin/ZyAGF/crackTools.src")
+import_code("/bin/ZyAGF/jsonUtils.src")
+import_code("/bin/ZyAGF/fileUtils.src")
+import_code("/bin/ZyAGF/reqSearch.src")
+import_code("/bin/ZyAGF/terminalInterface.src")
 target_users=[]
 user_passwords={}
 min=function(a,b)
@@ -109,41 +109,32 @@ if cacheFolder!=null then
 cacheFolder.delete
 end if
 end function
-debug_text=1
-clearScreen=0
-TitleScreen
-if params.len!=1 or params[0]=="-h" or params[0]=="--help" then
-exit("Usage: juicr <ip-address>")
-end if
-CachePrep
-print_style("Type [-q] anytime to quit")
-print_style("Type [-n] for no password")
-isLanIp=is_lan_ip(params[0])
-passwordArg=user_input("New password > ")
-ports=null
-firewallRules=null
-if passwordArg=="-q" then exit("User exit")
-if passwordArg=="-n" then passwordArg=""
-if passwordArg=="" then print("No password in use, Password exploits are disabled.")
+RouterCheck=function(ipaddr)
 if isLanIp then
 router=get_router
 else
-router=get_router(params[0])
+router=get_router(ipaddr)
 end if
 if router==null then exit("Error: IP address not found")
-if not isLanIp then
-ports=router.used_ports
-else
-ports=router.device_ports(params[0])
-end if
-if ports.len==0 then
-print("No open ports found.")
-end if
 print("\n== [NETWORK INFO] ==")
 routerVersion=router.kernel_version
 if routerVersion then
 print_style(" > kernel_router.so v"+routerVersion+" ")
 end if
+return router
+end function
+PortCheck=function(router)
+if not isLanIp then
+ports=router.used_ports
+else
+ports=router.device_ports(ipaddr)
+end if
+if ports.len==0 then
+print("No open ports found.")
+end if
+return ports
+end function
+FirewallScan=function(router)
 firewallRules=router.firewall_rules
 if typeof(firewallRules)=="string" then print(firewallRules)
 info="ACTION PORT SOURCE_IP DESTINATION_IP"
@@ -155,6 +146,8 @@ print("No firewall rules found.")
 else
 print(format_columns(info)+"\n")
 end if
+end function
+PortScan=function(ports)
 info="PORT STATE SERVICE VERSION LAN"
 for port in ports
 service_info=router.port_info(port)
@@ -166,12 +159,12 @@ end if
 info=info+"\n"+port.port_number+" "+port_status+" "+service_info+" "+lan_ips
 end for
 print(format_columns(info)+"\n")
+end function
+PortSelect=function(ports)
 inputOK=0
-portSel=null
-portLAN=null
 if ports.len==0 then
 portSel=0
-portLAN=params[0]
+portLAN=ipaddr
 inputOK=1
 else
 print_style("Type [-r] to target router kernel")
@@ -181,7 +174,7 @@ portSel=user_input("Input port number > ")
 if portSel=="-q" then exit("User exit")
 if portSel=="-r" then
 portSel=0
-portLAN=params[0]
+portLAN=ipaddr
 inputOK=1
 end if
 for port in ports
@@ -192,6 +185,9 @@ inputOK=1
 end if
 end for
 end while
+return [portSel,portLAN]
+end function
+LibGrab=function
 print("== [LIBS] ===")
 metaxploit=include_lib("/lib/metaxploit.so")
 if not metaxploit then
@@ -205,57 +201,19 @@ cryptools=include_lib(current_path+"/crypto.so")
 end if
 if not cryptools then exit("Error: Can't find crypto.so library in the /lib path or the current folder")
 print_style(" > "+cryptools+" ")
-net_session=metaxploit.net_use(params[0],portSel)
+net_session=metaxploit.net_use(ipaddr,portSel)
 if not net_session then exit("Error: can't connect to net session")
 metaLib=net_session.dump_lib
 if not metaLib then exit("Error: Dump library failed!")
+return [metaxploit,cryptools,metaLib]
+end function
+MemScan=function(metaLib)
 print_style(" > "+metaLib.lib_name+" "+metaLib.version)
 listMem=metaxploit.scan(metaLib)
-if listMem.len==0 then exit("Scan completed: No issues detected.")
+if listMem.len==0 then print("Scan completed: No issues detected.")
 if debug_text then print("Found "+listMem.len+" memory zones.")
-mapExploit={}
-for itemMem in listMem
-if debug_text then print("Scanning ["+itemMem+"]...")
-memScan=metaxploit.scan_address(metaLib,itemMem)
-ret=VulnerableScan(memScan)
-mapExploit[itemMem]=ret
-end for
-exploitCount=0
-for mem in mapExploit
-for itemKey in mem
-exploitCount=exploitCount+(1)
-end for
-end for
-TryExploit=function(mapExploit)
-successKeys={}
-for i in range(0,3)
-print("Attempting exploits with "+i+" requirement/s...")
-attemptKeys=ReqFilter(mapExploit,i)
-for entry in attemptKeys
-data={}
-exploit=entry.split(">>")
-print("=== ["+entry+"] ===")
-if passwordArg=="" then
-result=metaLib.overflow(exploit[0],exploit[1])
-else
-result=metaLib.overflow(exploit[0],exploit[1],passwordArg)
-end if
-if result then
-print("Success!"+char(10))
-print(typeof(result)+" obtained.")
-if typeof(result)=="computer" then
-HandleComputerObj(result,1)
-end if
-data["req"]=ReqSearch(mapExploit,exploit[1],exploit[0])
-data["result"]=result
-successKeys[entry]=data
-end if
-end for
-end for
-return successKeys
+return listMem
 end function
-successKeys=TryExploit(mapExploit)
-chosen_string=SelectExploit(successKeys)
 PostScanInterface=function(chosen_string)
 chosen_key=chosen_string[0]
 chosen_exploit=chosen_string[1]
@@ -289,5 +247,94 @@ if typeof(result)=="password" then
 print(result)
 end if
 end function
+TryExploit=function(mapExploit)
+successKeys={}
+for i in range(0,3)
+print("Attempting exploits with "+i+" requirement/s...")
+attemptKeys=ReqFilter(mapExploit,i)
+for entry in attemptKeys
+data={}
+exploit=entry.split(">>")
+print("=== ["+entry+"] ===")
+if passwordArg=="" then
+result=metaLib.overflow(exploit[0],exploit[1])
+else
+result=metaLib.overflow(exploit[0],exploit[1],passwordArg)
+end if
+if result then
+print("Success!"+char(10))
+print(typeof(result)+" obtained.")
+if typeof(result)=="computer" then
+HandleComputerObj(result,1)
+end if
+data["req"]=ReqSearch(mapExploit,exploit[1],exploit[0])
+data["result"]=result
+successKeys[entry]=data
+end if
+end for
+end for
+return successKeys
+end function
+debug_text=1
+clearScreen=0
+TitleScreen
+if params.len!=1 or params[0]=="-h" or params[0]=="--help" then
+exit("Usage: juicr <ip-address>")
+end if
+CachePrep
+ipaddr=params[0]
+if typeof(ipaddr)=="string" then
+oldipaddr=ipaddr
+ipaddr=nslookup(ipaddr)
+if ipaddr=="IP not found" then
+ipaddr=oldipaddr
+else
+print("> "+ipaddr)
+end if
+end if
+print_style("Type [-q] anytime to quit")
+print_style("Type [-n] for no password")
+isLanIp=is_lan_ip(ipaddr)
+passwordArg=user_input("New password > ")
+ports=null
+firewallRules=null
+router=null
+if passwordArg=="-q" then exit("User exit")
+if passwordArg=="-n" then passwordArg=""
+if passwordArg=="" then print("No password in use, Password exploits are disabled.")
+router=RouterCheck(ipaddr)
+ports=PortCheck(router)
+FirewallScan(router)
+PortScan(ports)
+portSel=null
+portLAN=null
+portTarg=PortSelect(ports)
+portSel=portTarg[0]
+portLAN=portTarg[1]
+metaxploit=null
+cryptools=null
+metaLib=null
+listMem=null
+dependencies=LibGrab
+metaxploit=dependencies[0]
+cryptools=dependencies[1]
+metaLib=dependencies[2]
+listMem=MemScan(metaLib)
+mapExploit={}
+for itemMem in listMem
+if debug_text then print("Scanning ["+itemMem+"]...")
+memScan=metaxploit.scan_address(metaLib,itemMem)
+ret=VulnerableScan(memScan)
+mapExploit[itemMem]=ret
+end for
+exploitCount=0
+for mem in mapExploit
+for itemKey in mem
+exploitCount=exploitCount+(1)
+end for
+end for
+successKeys=TryExploit(mapExploit)
+chosen_string=SelectExploit(successKeys)
 PostScanInterface(chosen_string)
+CacheRemove
 exit("<mark=#391D46><color=#FFAA00>JUICR</color></mark> closed")

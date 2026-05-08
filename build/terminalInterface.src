@@ -11,7 +11,7 @@ print(AddStyle(bgcol+"___%\_____\~_%\_____\~_%\_____\~_%\_____\~_%\__\\_\~_"+end
 if hasSubtitle then
 print(AddStyle(bgcol2+"+=+================================================+=+"+endcol))
 print(AddStyle(bgcol2+"|#|"+fgcol+"   Allows you to break into any door possible   "+bgcol2+"|#|"+endcol))
-print(AddStyle(bgcol2+"|#|"+fgcol+"          by <color=#FFAA00>orange<color=green>leaf<color=purple>36</color></color></color>/<color=#00FFBB>clover<color=#00FF00>leaf<color=purple>36</color></color></color>          "+bgcol2+"|#|"+endcol))
+print(AddStyle(bgcol2+"|#|"+fgcol+"                by  <color=#FFAA00>orange<color=green>leaf<color=purple>36</color></color></color>                "+bgcol2+"|#|"+endcol))
 print(AddStyle(bgcol2+"+=+================================================+=+"+endcol))
 end if
 end function
