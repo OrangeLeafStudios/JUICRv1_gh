@@ -7,6 +7,8 @@
   \_____\ \_____\ \_____\ \_____\ \__\\ \_
 ```
 
+![A really cool gif](https://raw.githubusercontent.com/OrangeLeafStudios/JUICRv1_gh/refs/heads/main/really_cool_gif.gif)
+
 A basic multi-tool for Grey Hack made by an orange with a leaf🍊🍃
 
 Like most custom-written tools, made for convenience (and also because I hate paying for single-use exploits :p)
