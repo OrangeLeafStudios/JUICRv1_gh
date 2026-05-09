@@ -9,8 +9,11 @@ VulnerableScan = function(memScan)
     if debug_text then print_style("VulnerableScan >> Interpreting output...")
     print(memScan)
     for word in memScan.replace(char(10)," ").split(" ")
-        if stringHist.join() == "string copy in" or stringHist.join() == "loop in array" then
+        combined = stringHist.join()
+        if combined == "string copy in" or combined == "loop in array" then
+            if unsecVal != "" then unsecVals[unsecVal] = requirements
             unsecVal = StripStyle(word[:word.len-1])
+            requirements = []
             if debug_text then print_style("VulnerableScan >>   Found keyword ["+unsecVal+"]")
         end if
         if word == "*" then
@@ -25,11 +28,9 @@ VulnerableScan = function(memScan)
             if requirement.len > 0 then
                 if debug_text then print_style("VulnerableScan >>   "+requirement.join())
                 requirements.push(requirement.join())
+                requirement = []
             end if
             requirementWrite = false
-            unsecVals[unsecVal] = requirements
-            requirements = []
-            requirement = []
         end if
         
         if requirementWrite then
@@ -38,6 +39,10 @@ VulnerableScan = function(memScan)
         stringHist.push(word)
         stringHist.pull()
     end for
+    if unsecVal != "" then
+        if requirement.len > 0 then requirements.push(requirement.join())
+        unsecVals[unsecVal] = requirements
+    end if
     return unsecVals
 end function
 

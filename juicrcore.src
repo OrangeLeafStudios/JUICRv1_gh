@@ -1,0 +1,201 @@
+// Returns router from IP
+RouterCheck = function(ipaddr, isLanIp)
+    // Valid Checking
+    if isLanIp then
+        router = get_router
+    else 
+        router = get_router(ipaddr)
+    end if
+    if router == null then return ("Error: IP address not found")
+    // Router Info
+    print("\n== [NETWORK INFO] ==")
+    routerVersion = router.kernel_version
+    if routerVersion then
+        print_style(" > kernel_router.so v"+routerVersion+" ")
+    end if
+    return router
+end function
+
+// Returns ports (array) from router
+PortCheck = function(router, isLanIp)
+    // Port
+    if not isLanIp then
+        ports = router.used_ports
+    else
+        ports = router.device_ports(ipaddr)
+    end if
+    if ports.len == 0 then
+        print("No open ports found.")
+    end if 
+    return ports
+end function
+
+// Displays firewall rules from router
+FirewallScan = function(router)
+    firewallRules = router.firewall_rules
+    if typeof(firewallRules) == "string" then print(firewallRules)
+    info = "ACTION PORT SOURCE_IP DESTINATION_IP"
+    for rules in firewallRules
+        info = info + "\n" + rules
+    end for
+    if firewallRules.len == 0 then
+        print("No firewall rules found.")
+    else
+        print(format_columns(info) + "\n")
+    end if
+end function
+
+// Displays port information from ports (array) and router
+PortScan = function(router, ports, isLanIp)
+    info = "PORT STATE SERVICE VERSION LAN"  
+    for port in ports
+        service_info = router.port_info(port)
+        lan_ips = port.get_lan_ip
+        port_status = "open"
+
+        if(port.is_closed and not isLanIp) then
+            port_status = "closed"
+        end if
+        info = info + "\n" + port.port_number + " " + port_status + " " + service_info + " " + lan_ips
+    end for
+    print(format_columns(info) + "\n")
+end function
+
+// User input selection for ports from ports (array) & ipaddr
+PortSelect = function(ipaddr, ports, preport=null)
+    if preport != null then portSel = preport
+    inputOK = false
+    if ports.len == 0 then
+        portSel = 0
+        portLAN = ipaddr
+        inputOK = true
+    else
+        print_style("Type [-r] to target router kernel")
+    end if
+    while not inputOK
+        if preport == null then portSel = user_input("Input port number > ")
+        if portSel == "-q" then exit("User exit")
+        if portSel == "-r" then
+            portSel = 0
+            portLAN = ipaddr
+            inputOK = true
+        end if
+        for port in ports
+            if port.port_number == val(portSel) then
+                portSel = val(portSel)
+                portLAN = port.get_lan_ip
+                inputOK = true
+            end if
+        end for
+        if preport == portSel and not inputOK then
+            preport = null
+            print("Port from parameter not open/doesn't exist")
+        end if
+    end while
+    return [portSel, portLAN]
+end function
+
+// Grabs all libraries needed and returns all dependencies as an array [metaxploit, cryptols]
+LibGrab = function()
+    print("== [LIBS] ===")
+    // MetaExploit
+    metaxploit = include_lib("/lib/metaxploit.so")
+    if not metaxploit then
+        metaxploit = include_lib(current_path + "/metaxploit.so")
+    end if
+    if not metaxploit then exit("Error: Missing metaxploit library")
+    // CrypTools
+    print_style(" > "+metaxploit+" ")
+    cryptools = include_lib("/lib/crypto.so")
+    if not cryptools then
+        cryptools = include_lib(current_path + "/crypto.so")
+    end if
+    if not cryptools then exit("Error: Can't find crypto.so library in the /lib path or the current folder")
+    // NetSession
+    print_style(" > "+cryptools+" ")
+    return [metaxploit, cryptools]
+end function
+
+// Returns NetSession and metaLib from metaxploit, ipaddr, & portSel
+MetaGrab = function(ipaddr, portSel, metaxploit)
+    net_session = metaxploit.net_use(ipaddr,portSel)
+    if not net_session then exit("Error: can't connect to net session")
+    // MetaLib
+    metaLib = net_session.dump_lib
+    if not metaLib then exit("Error: Dump library failed!")
+    return [net_session,metaLib]
+end function
+
+// Returns array of vulnerable mems from metaLib
+MemScan = function(metaLib)
+    // Memory Zone
+    print_style(" > "+metaLib.lib_name+" "+metaLib.version)
+    listMem = metaxploit.scan(metaLib)
+    if listMem.len == 0 then print("Scan completed: No issues detected.")
+    if debug_text then print("Found " + listMem.len + " memory zones.")
+    return listMem
+end function
+
+PostScanInterface = function(chosen_string)
+    chosen_key = chosen_string[0]
+    chosen_exploit = chosen_string[1]
+    if clearScreen then clear_screen()
+    TitleScreen(false)
+    print(chosen_exploit)
+    if chosen_exploit == "" then
+        exit("<mark=#391D46><color=#FFAA00>JUICR</color></mark> closed")
+    end if
+    result = chosen_exploit.result
+    print(chosen_key+" ("+typeof(result)+")")
+    if typeof(result) == "shell" then
+        if portSel == 0 then
+            HandleRouter(result)
+        else
+            result.start_terminal
+        end if
+    end if
+    if typeof(result) == "file" then
+        print("Name "+result.name)
+        print("Owner "+result.owner)
+        print("Is Folder? "+result.is_folder)
+        print("Is Binary? "+result.is_binary)
+        if result.is_folder then
+            for file in result.get_files
+                print("File "+file.path)
+            end for
+        end if
+    end if
+    if typeof(result) == "password" then
+        print(result)
+    end if
+end function
+
+// Brute force method
+TryExploit = function(mapExploit)
+    successKeys = {}
+    for i in range(0,3)
+        print("Attempting exploits with "+i+" requirement/s...")
+        attemptKeys = ReqFilter(mapExploit,i)
+        for entry in attemptKeys
+            data = {}
+            exploit = entry.split(">>")
+            print("=== ["+entry+"] ===")
+            if passwordArg == "" then
+                result = metaLib.overflow(exploit[0], exploit[1])
+            else
+                result = metaLib.overflow(exploit[0], exploit[1], passwordArg)
+            end if
+            if result then
+                print("Success!"+char(10))
+                print(typeof(result)+" obtained.")
+                if typeof(result) == "computer" then
+                    HandleComputerObj(result,true)
+                end if
+                data["req"] = ReqSearch(mapExploit, exploit[1], exploit[0])
+                data["result"] = result
+                successKeys[entry] = data
+            end if
+        end for
+    end for
+    return successKeys
+end function

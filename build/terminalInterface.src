@@ -8,6 +8,7 @@ print(AddStyle(bgcol+"____%\$\~_%\$\~_%\$\~_%\__$__\~-%\$$___\~_%\$$_$$\~____"+e
 print(AddStyle(bgcol+"_%.__.\$\~_%\$\~_%\$\~___%\$\~___%\$\~_____%\$$../\~___"+endcol))
 print(AddStyle(bgcol+"__%\$\_\$\~_%\$\_\$\~_%._\$\_.~_%\$\___.~_%\$$\\$\~__"+endcol))
 print(AddStyle(bgcol+"___%\_____\~_%\_____\~_%\_____\~_%\_____\~_%\__\\_\~_"+endcol))
+print(AddStyle(bgcol+"========<color=#FFFFFF>[ %JUICR~v1.5 + %JUICR~<color=#FFFF00>Shell</color> ]</color>========="+endcol))
 if hasSubtitle then
 print(AddStyle(bgcol2+"+=+================================================+=+"+endcol))
 print(AddStyle(bgcol2+"|#|"+fgcol+"   Allows you to break into any door possible   "+bgcol2+"|#|"+endcol))
