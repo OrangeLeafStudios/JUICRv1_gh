@@ -1,4 +1,4 @@
-BUILD_DESTINATION="/bin";BUILD_RESOURCE_DESTINATION="/bin/WnxrU";BUILD_AUTO_COMPILE=1;s = get_shell;c = s.host_computer;m = function(filePath, content, isNew);segments = filePath.split("/")[1 : ];fileName = segments.pop;for segment in segments;parentPath = "/" + segments[ : __segment_idx].join("/");folderName = segment;if parentPath == "/" then;folderPath = "/" + folderName;else;folderPath = parentPath + "/" + folderName;end if;folderHandle = c.File(folderPath);if folderHandle == null then;result = c.create_folder(parentPath, folderName) == 1;if result != 1 then exit("Could not create folder in """ + folderPath + """ due to: " + result);print("New folder """ + folderPath + """ got created.");folderHandle = c.File(folderPath);end if;if not folderHandle.is_folder then exit("Entity at """ + folderPath + """ is not a folder. Installation got aborted.");end for;parentPath = "/" + segments.join("/");fileEntity = c.File(filePath);if fileEntity == null then;result = c.touch(parentPath, fileName);if result != 1 then exit("Could not create file in """ + filePath + """ due to: " + result);fileEntity = c.File(filePath);end if;if fileEntity == null then exit("Unable to get file at """ + filePath + """. Installation got aborted.");if fileEntity.is_folder then exit("File at """ + filePath + """ is a folder but should be a source file. Installation got aborted.");if fileEntity.is_binary then exit("File at """ + filePath + """ is a binary but should be a source file. Installation got aborted.");if isNew then;fileEntity.set_content(content);print("New file """ + filePath + """ got created.");else;fileEntity.set_content(fileEntity.get_content + content);print("Content got appended to """ + filePath + """.");end if;end function;d = function;c.File(program_path).delete;end function;m("/bin/WnxrU/styleStrip.src","StripStyle=function(text="""")
+BUILD_DESTINATION="/bin";BUILD_RESOURCE_DESTINATION="/bin/HvfC7";BUILD_AUTO_COMPILE=1;s = get_shell;c = s.host_computer;m = function(filePath, content, isNew);segments = filePath.split("/")[1 : ];fileName = segments.pop;for segment in segments;parentPath = "/" + segments[ : __segment_idx].join("/");folderName = segment;if parentPath == "/" then;folderPath = "/" + folderName;else;folderPath = parentPath + "/" + folderName;end if;folderHandle = c.File(folderPath);if folderHandle == null then;result = c.create_folder(parentPath, folderName) == 1;if result != 1 then exit("Could not create folder in """ + folderPath + """ due to: " + result);print("New folder """ + folderPath + """ got created.");folderHandle = c.File(folderPath);end if;if not folderHandle.is_folder then exit("Entity at """ + folderPath + """ is not a folder. Installation got aborted.");end for;parentPath = "/" + segments.join("/");fileEntity = c.File(filePath);if fileEntity == null then;result = c.touch(parentPath, fileName);if result != 1 then exit("Could not create file in """ + filePath + """ due to: " + result);fileEntity = c.File(filePath);end if;if fileEntity == null then exit("Unable to get file at """ + filePath + """. Installation got aborted.");if fileEntity.is_folder then exit("File at """ + filePath + """ is a folder but should be a source file. Installation got aborted.");if fileEntity.is_binary then exit("File at """ + filePath + """ is a binary but should be a source file. Installation got aborted.");if isNew then;fileEntity.set_content(content);print("New file """ + filePath + """ got created.");else;fileEntity.set_content(fileEntity.get_content + content);print("Content got appended to """ + filePath + """.");end if;end function;d = function;c.File(program_path).delete;end function;m("/bin/HvfC7/styleStrip.src","StripStyle=function(text="""")
 tags=""align|alpha|color|b|i|cspace|font|indent|line-height|line-indent|link|lowercase|uppercase|smallcaps|margin|mark|mspace|noparse|nobr|page|pos|size|space|sprite|s|u|style|sub|sup|voffset|width|link|#[0-9a-f]{3}|#[0-9a-f]{6}""
 return text.replace(""<\/?(""+tags+"")(\s.*?|=.*?|.{0})>"","""")
 end function
@@ -30,7 +30,7 @@ return line
 end function
 print_style=function(line)
 print(AddStyle(line))
-end function",1);m("/bin/WnxrU/crackTools.src","VulnerableScan=function(memScan)
+end function",1);m("/bin/HvfC7/crackTools.src","VulnerableScan=function(memScan)
 stringHist=["""","""",""""]
 requirements=[]
 requirement=[]
@@ -79,7 +79,7 @@ GetPassword=function(userPass)
 if userPass.len!=2 then exit(""decipher: wrong syntax"")
 password=cryptools.decipher(userPass[1])
 return password
-end function",1);m("/bin/WnxrU/jsonUtils.src","string.quote=function
+end function",1);m("/bin/HvfC7/jsonUtils.src","string.quote=function
 return """"""""+self+""""""""
 end function
 string.search=function(sub_string="""")
@@ -487,7 +487,7 @@ tokens=self.internal.lexer.tokenize
 self.internal.scaffold.set_input(tokens[1:])
 scaffold=self.internal.scaffold.parse(self.internal.scaffold.output_array)
 return self.internal.parser.parse(scaffold)
-end function",1);m("/bin/WnxrU/fileUtils.src","fs_rm=function(pathStr,isRecursive=0)
+end function",1);m("/bin/HvfC7/fileUtils.src","fs_rm=function(pathStr,isRecursive=0)
 pathFile=get_abs_path(pathStr)
 file=get_shell.host_computer.File(pathFile)
 if file==null then return ""rm: file not found: ""+pathFile
@@ -575,7 +575,7 @@ return {}
 end if
 mapExploitLoaded=JSON.parse(exploitData)
 return mapExploitLoaded
-end function",1);m("/bin/WnxrU/reqSearch.src","ReqFilter=function(mapExploit,reqCount=0)
+end function",1);m("/bin/HvfC7/reqSearch.src","ReqFilter=function(mapExploit,reqCount=0)
 result=[]
 for itemMem in mapExploit.indexes
 if debug_text then print_style(""ReqFilter >> Checking mem zone [""+itemMem+""]"")
@@ -616,7 +616,7 @@ if debug_text then print_style(""ReqSearch >> Invalid memory zone!"")
 end if
 end if
 return result
-end function",1);m("/bin/WnxrU/terminalInterface.src","TitleScreen=function(hasSubtitle=1)
+end function",1);m("/bin/HvfC7/terminalInterface.src","TitleScreen=function(hasSubtitle=1)
 bgcol=""<color=#391D46>""
 bgcol2=""<color=#1D2646>""
 fgcol=""<color=#FFFFFF>""
@@ -769,7 +769,7 @@ end if
 end if
 end while
 return [chosen_key,chosen_exploit]
-end function",1);m("/bin/WnxrU/juicrcore.src","RouterCheck=function(ipaddr,isLanIp)
+end function",1);m("/bin/HvfC7/juicrcore.src","RouterCheck=function(ipaddr,isLanIp)
 if isLanIp then
 router=get_router
 else
@@ -942,13 +942,13 @@ end if
 end for
 end for
 return successKeys
-end function",1);m("/bin/WnxrU/juicr.src","import"+"_"+"code(""/bin/WnxrU/styleStrip.src"")
-import"+"_"+"code(""/bin/WnxrU/crackTools.src"")
-import"+"_"+"code(""/bin/WnxrU/jsonUtils.src"")
-import"+"_"+"code(""/bin/WnxrU/fileUtils.src"")
-import"+"_"+"code(""/bin/WnxrU/reqSearch.src"")
-import"+"_"+"code(""/bin/WnxrU/terminalInterface.src"")
-import"+"_"+"code(""/bin/WnxrU/juicrcore.src"")
+end function",1);m("/bin/HvfC7/juicr.src","import"+"_"+"code(""/bin/HvfC7/styleStrip.src"")
+import"+"_"+"code(""/bin/HvfC7/crackTools.src"")
+import"+"_"+"code(""/bin/HvfC7/jsonUtils.src"")
+import"+"_"+"code(""/bin/HvfC7/fileUtils.src"")
+import"+"_"+"code(""/bin/HvfC7/reqSearch.src"")
+import"+"_"+"code(""/bin/HvfC7/terminalInterface.src"")
+import"+"_"+"code(""/bin/HvfC7/juicrcore.src"")
 target_users=[]
 user_passwords={}
 min=function(a,b)
@@ -1309,14 +1309,25 @@ reqs=mems[addr][vuln]
 req_str=""""
 col=""""
 res_type=""""
+outcome=null
 if reqs.len>0 then req_str="" <color=orange>(""+reqs.len+"" reqs)</color>""
 if results.hasIndex(vuln+""@""+addr) then
+if not results[vuln+""@""+addr][0] then
+col=""<color=red>""
+else
 col=""<color=yellow>""
-res_type="" <color=green>(Type [""+typeof(results[vuln+""@""+addr])+""])</color>""
+res_type="" <color=green>(Type [""+typeof(results[vuln+""@""+addr][0])+""])</color>""
+end if
+outcome=results[vuln+""@""+addr][1]
+if outcome!=null then col=""<color=green>""
 end if
 print(col+""[""+i+""] </color>""+options[i]+req_str+res_type)
+if outcome!=null then print(outcome)
 end for
-selection=user_input(""Select index (or 'q' to go back) > "")
+print(""Select Index"")
+print(""q - exit"")
+print(""bf - brute-force"")
+selection=user_input("">> "")
 if selection==""q"" then
 isSqueezing=0
 continue
@@ -1330,32 +1341,39 @@ target_exploit=options[sel_idx].split("" >> "")
 mem_addr=target_exploit[0]
 vuln_name=target_exploit[1]
 if results.hasIndex(vuln_name+""@""+mem_addr) then
+result_data=results[vuln_name+""@""+mem_addr]
+result=result_data[0]
 print(""Launching ""+vuln_name+"" at ""+mem_addr+""..."")
 if typeof(result)==""computer"" then HandleComputerObj(result,1)
 if typeof(result)==""shell"" then
 if port==0 then
+print(""Port 0: Handling target as Router..."")
 HandleRouter(result)
 else
+print(""Port ""+port+"": Handling target as standard shell..."")
 result.start_terminal
 end if
 end if
 if typeof(result)==""file"" then
-print(""Name ""+result.name)
-print(""Owner ""+result.owner)
-print(""Is Folder? ""+result.is_folder)
-print(""Is Binary? ""+result.is_binary)
+stdout=""""
+stdout=stdout+(result.permissions+"" | ""+result.path+"" | ""+result.size+"" bytes\nOwner ""+result.owner)
+filetype=""File""
+if result.is_binary then filetype=""Binary""
+if result.is_folder then filetype=""Folder""
+stdout=stdout+"" | Type: ""+filetype
 if result.is_folder then
 for file in result.get_files
-print(""File ""+file.path)
+stdout=stdout+(""File ""+file.path)+""\n""
 end for
 else if not result.is_binary then
-print(""Contents: [""+result.get_content+""]"")
+stdout=stdout+(""Contents: [""+result.get_content+""]"")+""\n""
 end if
+result_data[1]=stdout
 end if
 if typeof(result)==""password"" then
-print(result)
+result_data[1]=result
 end if
-isSqueezing=0
+results[vuln_name+""@""+mem_addr][1]=result_data[1]
 continue
 end if
 print(""Targeting ""+vuln_name+"" at ""+mem_addr+""..."")
@@ -1363,9 +1381,10 @@ mLib=lib_data.metaLib
 result=mLib.overflow(mem_addr,vuln_name,passwordArg)
 if result then
 print(""<color=green>Success!</color> Gained ""+typeof(result))
-results[vuln_name+""@""+mem_addr]=result
+results[vuln_name+""@""+mem_addr]=[result,null]
 else
 print(""<color=red>Exploit failed.</color> Try another address."")
+results[vuln_name+""@""+mem_addr]=[0,null]
 end if
 end while
 end if
@@ -1374,16 +1393,16 @@ is_custom=1
 PrintTree(ses)
 else if cmd==""help"" then
 is_custom=1
-print(""Available commands:"")
-print(""juice <ip-address> <port (optional)>"")
-print(""* Obtains & stores library memory info"")
-print(""* Used before [squeeze]"")
-print(""squeeze -r"")
-print(""squeeze <ip address> <port>"")
-print(""* Cracks the library in said port"")
-print(""* -r flag uses output from recent [juicr] command"")
-print(""print_ses"")
-print(""* Debug command. Prints map [ses]"")
+print_style(""Available commands:"")
+print_style(""juice <ip-address> <port (optional)>"")
+print_style(""* Obtains & stores library memory info"")
+print_style(""* Used before [squeeze]"")
+print_style(""squeeze -r"")
+print_style(""squeeze <ip address> <port>"")
+print_style(""* Cracks the library in said port"")
+print_style(""* -r flag uses output from recent [juicr] command"")
+print_style(""print_ses"")
+print_style(""* Debug command. Prints map [ses]"")
 end if
 return [is_custom,output]
 end function
@@ -1441,4 +1460,4 @@ else
 print(stdin[0]+"": does not exist"")
 end if
 end if
-end while",1);d;tryGetFile = function(pc, path, maxTries = 20);handle = File(pc, path);tries = 0;while (handle == null);if (tries > maxTries) then;break;end if;handle = File(pc, path);tries = tries + 1;print("Failed to get file """ + path + """. (" + tries + "/" + maxTries + " tries)");wait(0.1);end while;return handle;end function;rootFilePath = "/juicr.src";filePaths = ["/styleStrip.src","/crackTools.src","/jsonUtils.src","/fileUtils.src","/reqSearch.src","/terminalInterface.src","/juicrcore.src","/juicr.src"];tmpDirectory = "5RfXD";myShell = get_shell;myComputer = host_computer(myShell);srcFile = tryGetFile(myComputer, BUILD_RESOURCE_DESTINATION + rootFilePath);if srcFile == null then exit("EXIT_CODE=1;EXIT_MESSAGE=Couldn't find source file in " + BUILD_RESOURCE_DESTINATION + rootFilePath + ";");fileName = name(srcFile);binaryName = replace_regex(fileName, "\.[^.]+$", "");destination = parent_path(path(srcFile));result = create_folder(myComputer, destination, tmpDirectory);if result != 1 then exit("EXIT_CODE=1;EXIT_MESSAGE=Error when creating temporary build folder! Reason: " + result + ";");tmpFolder = tryGetFile(myComputer, destination + "/" + tmpDirectory);if tmpFolder == null then exit("EXIT_CODE=1;EXIT_MESSAGE=Couldn't find temporary build folder in " + destination + "/" + tmpDirectory + ";");result = copy(srcFile, tmpFolder.path, "dddd.src");if result != 1 then exit("EXIT_CODE=1;EXIT_MESSAGE=Error when moving source file into temporary build folder! Reason: " + result + ";");tmpFile = tryGetFile(myComputer, tmpFolder.path + "/dddd.src");if (tmpFile == null) then exit("EXIT_CODE=1;EXIT_MESSAGE=Cannot find temporary file!;");result = build(myShell, tmpFolder.path + "/dddd.src", tmpFolder.path, 1);if result != "" then exit("EXIT_CODE=1;EXIT_MESSAGE=Error when building! Reason: " + result + ";");binaryFile = tryGetFile(myComputer, tmpFolder.path + "/dddd");if binaryFile == null then exit("EXIT_CODE=1;EXIT_MESSAGE=Couldn't find binary file in " + tmpFolder.path + "/dddd;");result = move(binaryFile, BUILD_DESTINATION, binaryName);if result != 1 then exit("EXIT_CODE=1;EXIT_MESSAGE=Error when moving binary file into destination folder! Reason: " + result + ";");delete(File(myComputer, BUILD_RESOURCE_DESTINATION));print("Build done in " + destination);
+end while",1);d;tryGetFile = function(pc, path, maxTries = 20);handle = File(pc, path);tries = 0;while (handle == null);if (tries > maxTries) then;break;end if;handle = File(pc, path);tries = tries + 1;print("Failed to get file """ + path + """. (" + tries + "/" + maxTries + " tries)");wait(0.1);end while;return handle;end function;rootFilePath = "/juicr.src";filePaths = ["/styleStrip.src","/crackTools.src","/jsonUtils.src","/fileUtils.src","/reqSearch.src","/terminalInterface.src","/juicrcore.src","/juicr.src"];tmpDirectory = "V9LmF";myShell = get_shell;myComputer = host_computer(myShell);srcFile = tryGetFile(myComputer, BUILD_RESOURCE_DESTINATION + rootFilePath);if srcFile == null then exit("EXIT_CODE=1;EXIT_MESSAGE=Couldn't find source file in " + BUILD_RESOURCE_DESTINATION + rootFilePath + ";");fileName = name(srcFile);binaryName = replace_regex(fileName, "\.[^.]+$", "");destination = parent_path(path(srcFile));result = create_folder(myComputer, destination, tmpDirectory);if result != 1 then exit("EXIT_CODE=1;EXIT_MESSAGE=Error when creating temporary build folder! Reason: " + result + ";");tmpFolder = tryGetFile(myComputer, destination + "/" + tmpDirectory);if tmpFolder == null then exit("EXIT_CODE=1;EXIT_MESSAGE=Couldn't find temporary build folder in " + destination + "/" + tmpDirectory + ";");result = copy(srcFile, tmpFolder.path, "dddd.src");if result != 1 then exit("EXIT_CODE=1;EXIT_MESSAGE=Error when moving source file into temporary build folder! Reason: " + result + ";");tmpFile = tryGetFile(myComputer, tmpFolder.path + "/dddd.src");if (tmpFile == null) then exit("EXIT_CODE=1;EXIT_MESSAGE=Cannot find temporary file!;");result = build(myShell, tmpFolder.path + "/dddd.src", tmpFolder.path, 1);if result != "" then exit("EXIT_CODE=1;EXIT_MESSAGE=Error when building! Reason: " + result + ";");binaryFile = tryGetFile(myComputer, tmpFolder.path + "/dddd");if binaryFile == null then exit("EXIT_CODE=1;EXIT_MESSAGE=Couldn't find binary file in " + tmpFolder.path + "/dddd;");result = move(binaryFile, BUILD_DESTINATION, binaryName);if result != 1 then exit("EXIT_CODE=1;EXIT_MESSAGE=Error when moving binary file into destination folder! Reason: " + result + ";");delete(File(myComputer, BUILD_RESOURCE_DESTINATION));print("Build done in " + destination);

@@ -1,10 +1,10 @@
-import_code("/bin/WnxrU/styleStrip.src")
-import_code("/bin/WnxrU/crackTools.src")
-import_code("/bin/WnxrU/jsonUtils.src")
-import_code("/bin/WnxrU/fileUtils.src")
-import_code("/bin/WnxrU/reqSearch.src")
-import_code("/bin/WnxrU/terminalInterface.src")
-import_code("/bin/WnxrU/juicrcore.src")
+import_code("/bin/HvfC7/styleStrip.src")
+import_code("/bin/HvfC7/crackTools.src")
+import_code("/bin/HvfC7/jsonUtils.src")
+import_code("/bin/HvfC7/fileUtils.src")
+import_code("/bin/HvfC7/reqSearch.src")
+import_code("/bin/HvfC7/terminalInterface.src")
+import_code("/bin/HvfC7/juicrcore.src")
 target_users=[]
 user_passwords={}
 min=function(a,b)
@@ -365,14 +365,25 @@ reqs=mems[addr][vuln]
 req_str=""
 col=""
 res_type=""
+outcome=null
 if reqs.len>0 then req_str=" <color=orange>("+reqs.len+" reqs)</color>"
 if results.hasIndex(vuln+"@"+addr) then
+if not results[vuln+"@"+addr][0] then
+col="<color=red>"
+else
 col="<color=yellow>"
-res_type=" <color=green>(Type ["+typeof(results[vuln+"@"+addr])+"])</color>"
+res_type=" <color=green>(Type ["+typeof(results[vuln+"@"+addr][0])+"])</color>"
+end if
+outcome=results[vuln+"@"+addr][1]
+if outcome!=null then col="<color=green>"
 end if
 print(col+"["+i+"] </color>"+options[i]+req_str+res_type)
+if outcome!=null then print(outcome)
 end for
-selection=user_input("Select index (or 'q' to go back) > ")
+print("Select Index")
+print("q - exit")
+print("bf - brute-force")
+selection=user_input(">> ")
 if selection=="q" then
 isSqueezing=0
 continue
@@ -386,32 +397,39 @@ target_exploit=options[sel_idx].split(" >> ")
 mem_addr=target_exploit[0]
 vuln_name=target_exploit[1]
 if results.hasIndex(vuln_name+"@"+mem_addr) then
+result_data=results[vuln_name+"@"+mem_addr]
+result=result_data[0]
 print("Launching "+vuln_name+" at "+mem_addr+"...")
 if typeof(result)=="computer" then HandleComputerObj(result,1)
 if typeof(result)=="shell" then
 if port==0 then
+print("Port 0: Handling target as Router...")
 HandleRouter(result)
 else
+print("Port "+port+": Handling target as standard shell...")
 result.start_terminal
 end if
 end if
 if typeof(result)=="file" then
-print("Name "+result.name)
-print("Owner "+result.owner)
-print("Is Folder? "+result.is_folder)
-print("Is Binary? "+result.is_binary)
+stdout=""
+stdout=stdout+(result.permissions+" | "+result.path+" | "+result.size+" bytes\nOwner "+result.owner)
+filetype="File"
+if result.is_binary then filetype="Binary"
+if result.is_folder then filetype="Folder"
+stdout=stdout+" | Type: "+filetype
 if result.is_folder then
 for file in result.get_files
-print("File "+file.path)
+stdout=stdout+("File "+file.path)+"\n"
 end for
 else if not result.is_binary then
-print("Contents: ["+result.get_content+"]")
+stdout=stdout+("Contents: ["+result.get_content+"]")+"\n"
 end if
+result_data[1]=stdout
 end if
 if typeof(result)=="password" then
-print(result)
+result_data[1]=result
 end if
-isSqueezing=0
+results[vuln_name+"@"+mem_addr][1]=result_data[1]
 continue
 end if
 print("Targeting "+vuln_name+" at "+mem_addr+"...")
@@ -419,9 +437,10 @@ mLib=lib_data.metaLib
 result=mLib.overflow(mem_addr,vuln_name,passwordArg)
 if result then
 print("<color=green>Success!</color> Gained "+typeof(result))
-results[vuln_name+"@"+mem_addr]=result
+results[vuln_name+"@"+mem_addr]=[result,null]
 else
 print("<color=red>Exploit failed.</color> Try another address.")
+results[vuln_name+"@"+mem_addr]=[0,null]
 end if
 end while
 end if
@@ -430,16 +449,16 @@ is_custom=1
 PrintTree(ses)
 else if cmd=="help" then
 is_custom=1
-print("Available commands:")
-print("juice <ip-address> <port (optional)>")
-print("* Obtains & stores library memory info")
-print("* Used before [squeeze]")
-print("squeeze -r")
-print("squeeze <ip address> <port>")
-print("* Cracks the library in said port")
-print("* -r flag uses output from recent [juicr] command")
-print("print_ses")
-print("* Debug command. Prints map [ses]")
+print_style("Available commands:")
+print_style("juice <ip-address> <port (optional)>")
+print_style("* Obtains & stores library memory info")
+print_style("* Used before [squeeze]")
+print_style("squeeze -r")
+print_style("squeeze <ip address> <port>")
+print_style("* Cracks the library in said port")
+print_style("* -r flag uses output from recent [juicr] command")
+print_style("print_ses")
+print_style("* Debug command. Prints map [ses]")
 end if
 return [is_custom,output]
 end function
